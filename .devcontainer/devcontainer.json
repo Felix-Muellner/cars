@@ -1,0 +1,13 @@
+{
+  "name": "Cars API - Node.js & Claude Code",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:20",
+  "features": {
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": ["humao.rest-client"]
+    }
+  },
+  "postCreateCommand": "npm install && npm install -g @anthropic-ai/claude-code"
+}
