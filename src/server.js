@@ -16,6 +16,17 @@ app.get('/api/cars', (req, res) => {
   res.status(200).json(cars);
 });
 
+app.get('/api/cars/:id', (req, res) => {
+    const carId = parseInt(req.params.id, 10);
+    const car = cars.find((c) => c.id === carId);
+
+    if (!car) {
+        return res.status(404).json({ message: "Car not found" });
+    }
+
+    res.status(200).json(car);
+});
+
 app.listen(PORT, HOST, () => {
   console.log(`Server listening on http://${HOST}:${PORT}...`);
 });

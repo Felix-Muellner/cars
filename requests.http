@@ -1,2 +1,6 @@
 ### Get all cars
 GET http://127.0.0.1:3000/api/cars
+
+
+### Get car by ID
+GET http://127.0.0.1:3000/api/cars/1
