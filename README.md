@@ -45,3 +45,17 @@ This project serves as a foundational backend project to practice core web API d
 | `POST` | `/api/cars` | Add a new car | `201 Created` / `400 Bad Request` |
 | `PUT` | `/api/cars/:id` | Update an existing car | `200 OK` / `404 Not Found` |
 | `DELETE` | `/api/cars/:id` | Remove a car by ID | `204 No Content` / `404 Not Found` |
+
+## ⚙️ Getting Started
+
+### Prerequisites
+
+- [Node.js](https://nodejs.org/)
+- [npm](https://www.npmjs.com/)
+
+### Setup & Run
+```bash
+npm install
+npm start
+```
+The API will run at `http://127.0.0.1:3000`.
