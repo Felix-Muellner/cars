@@ -33,7 +33,7 @@ app.post('/api/cars', (req, res) => {
     const { make, model, year } = req.body;
 
     if (!make || !model || !year) {
-        return res.status(400).json({ message: "Make, model and year are required"})
+        return res.status(400).json({ message: "Make, model and year are required" })
     }
 
     const newCar = {
@@ -46,7 +46,28 @@ app.post('/api/cars', (req, res) => {
     cars.push(newCar);
 
     res.status(201).json(newCar);
-})
+});
+
+app.put('/api/cars/:id', (req, res) => {
+    const carId = parseInt(req.params.id, 10);
+    const car = cars.find((c) => c.id === carId);
+
+    if (!car) {
+        return res.status(404).json({ message: "Car not found" });
+    }
+
+    const { make, model, year } = req.body;
+
+    if (!make || !model || !year) {
+        return res.status(400).json({ message: "Make, model and year are required" });
+    }
+
+    car.make = make;
+    car.model = model;
+    car.year = year;
+
+    res.status(200).json(car);
+});
 
 app.listen(PORT, HOST, () => {
   console.log(`Server listening on http://${HOST}:${PORT}...`);

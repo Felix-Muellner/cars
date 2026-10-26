@@ -15,3 +15,14 @@ Content-Type: application/json
   "model": "Mustang",
   "year": 2022
 }
+
+
+### Update existing car
+PUT http://127.0.0.1:3000/api/cars/3
+Content-Type: application/json
+
+{
+    "make": "Tesla",
+    "model": "Model 3 Performance",
+    "year": 2026
+}

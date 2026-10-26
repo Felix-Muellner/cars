@@ -43,7 +43,7 @@ This project serves as a foundational backend project to practice core web API d
 | `GET` | `/api/cars` | Retrieve all cars | `200 OK` |
 | `GET` | `/api/cars/:id` | Retrieve a specific car by ID | `200 OK` / `404 Not Found` |
 | `POST` | `/api/cars` | Add a new car | `201 Created` / `400 Bad Request` |
-| `PUT` | `/api/cars/:id` | Update an existing car | `200 OK` / `404 Not Found` |
+| `PUT` | `/api/cars/:id` | Update an existing car | `200 OK` / `400 Bad Request` / `404 Not Found` |
 | `DELETE` | `/api/cars/:id` | Remove a car by ID | `204 No Content` / `404 Not Found` |
 
 ## ⚙️ Getting Started
