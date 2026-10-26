@@ -1,12 +1,22 @@
-### Get all cars
+### ==========================================
+### GET Requests
+### ==========================================
+
+### Get all cars (200 OK)
 GET http://127.0.0.1:3000/api/cars
 
-
-### Get car by ID
+### Get car by ID (200 OK)
 GET http://127.0.0.1:3000/api/cars/1
 
+### Get car by non-existent ID (404 Not Found)
+GET http://127.0.0.1:3000/api/cars/999
 
-### Create a new car
+
+### ==========================================
+### POST Requests
+### ==========================================
+
+### Create a new car (201 Created)
 POST http://127.0.0.1:3000/api/cars
 Content-Type: application/json
 
@@ -16,17 +26,54 @@ Content-Type: application/json
   "year": 2022
 }
 
+### Create car - Missing required fields (400 Bad Request)
+POST http://127.0.0.1:3000/api/cars
+Content-Type: application/json
 
-### Update existing car
+{
+  "make": "Ford"
+}
+
+
+### ==========================================
+### PUT Requests
+### ==========================================
+
+### Update existing car (200 OK)
 PUT http://127.0.0.1:3000/api/cars/3
 Content-Type: application/json
 
 {
-    "make": "Tesla",
-    "model": "Model 3 Performance",
-    "year": 2026
+  "make": "Tesla",
+  "model": "Model 3 Performance",
+  "year": 2026
+}
+
+### Update car - Missing required fields (400 Bad Request)
+PUT http://127.0.0.1:3000/api/cars/3
+Content-Type: application/json
+
+{
+  "make": "Tesla"
+}
+
+### Update car - Non-existent ID (404 Not Found)
+PUT http://127.0.0.1:3000/api/cars/999
+Content-Type: application/json
+
+{
+  "make": "Tesla",
+  "model": "Model 3",
+  "year": 2024
 }
 
 
-### Delete specific car
+### ==========================================
+### DELETE Requests
+### ==========================================
+
+### Delete specific car (204 No Content)
 DELETE http://127.0.0.1:3000/api/cars/2
+
+### Delete non-existent car (404 Not Found)
+DELETE http://127.0.0.1:3000/api/cars/999
