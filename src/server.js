@@ -9,6 +9,15 @@ app.use(express.json());
 /**
  * @openapi
  * components:
+ *   parameters:
+ *     CarId:
+ *       name: id
+ *       in: path
+ *       required: true
+ *       description: Numeric car id
+ *       schema:
+ *         type: integer
+ *       example: 1
  *   schemas:
  *     Car:
  *       type: object
@@ -54,10 +63,48 @@ let cars = [
 
 let nextId = 3;
 
+/**
+ * @openapi
+ * /api/cars:
+ *   get:
+ *     tags: [Cars]
+ *     summary: List all cars
+ *     responses:
+ *       200:
+ *         description: All cars in the store
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Car'
+ */
 app.get('/api/cars', (req, res) => {
   res.status(200).json(cars);
 });
 
+/**
+ * @openapi
+ * /api/cars/{id}:
+ *   get:
+ *     tags: [Cars]
+ *     summary: Get a car by id
+ *     parameters:
+ *       - $ref: '#/components/parameters/CarId'
+ *     responses:
+ *       200:
+ *         description: The requested car
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Car'
+ *       404:
+ *         description: Car not found (also returned for non-numeric ids)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 app.get('/api/cars/:id', (req, res) => {
     const carId = parseInt(req.params.id, 10);
     const car = cars.find((c) => c.id === carId);
@@ -69,6 +116,34 @@ app.get('/api/cars/:id', (req, res) => {
     res.status(200).json(car);
 });
 
+/**
+ * @openapi
+ * /api/cars:
+ *   post:
+ *     tags: [Cars]
+ *     summary: Create a car
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/CarInput'
+ *     responses:
+ *       201:
+ *         description: The created car
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Car'
+ *       400:
+ *         description: make, model or year is missing
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *             example:
+ *               message: Make, model and year are required
+ */
 app.post('/api/cars', (req, res) => {
     const { make, model, year } = req.body;
 
@@ -88,6 +163,42 @@ app.post('/api/cars', (req, res) => {
     res.status(201).json(newCar);
 });
 
+/**
+ * @openapi
+ * /api/cars/{id}:
+ *   put:
+ *     tags: [Cars]
+ *     summary: Replace a car
+ *     parameters:
+ *       - $ref: '#/components/parameters/CarId'
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/CarInput'
+ *     responses:
+ *       200:
+ *         description: The updated car
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Car'
+ *       400:
+ *         description: make, model or year is missing
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *             example:
+ *               message: Make, model and year are required
+ *       404:
+ *         description: Car not found (checked before the body is validated)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 app.put('/api/cars/:id', (req, res) => {
     const carId = parseInt(req.params.id, 10);
     const car = cars.find((c) => c.id === carId);
@@ -109,6 +220,24 @@ app.put('/api/cars/:id', (req, res) => {
     res.status(200).json(car);
 });
 
+/**
+ * @openapi
+ * /api/cars/{id}:
+ *   delete:
+ *     tags: [Cars]
+ *     summary: Delete a car
+ *     parameters:
+ *       - $ref: '#/components/parameters/CarId'
+ *     responses:
+ *       204:
+ *         description: Car deleted, no content
+ *       404:
+ *         description: Car not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 app.delete('/api/cars/:id', (req, res) => {
     const carId = parseInt(req.params.id, 10);
     const carIndex = cars.findIndex((c) => c.id === carId);
