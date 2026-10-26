@@ -26,3 +26,7 @@ Content-Type: application/json
     "model": "Model 3 Performance",
     "year": 2026
 }
+
+
+### Delete specific car
+DELETE http://127.0.0.1:3000/api/cars/2

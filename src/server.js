@@ -69,6 +69,19 @@ app.put('/api/cars/:id', (req, res) => {
     res.status(200).json(car);
 });
 
+app.delete('/api/cars/:id', (req, res) => {
+    const carId = parseInt(req.params.id, 10);
+    const carIndex = cars.findIndex((c) => c.id === carId);
+
+    if (carIndex === -1) {
+        return res.status(404).json({ message: "Car not found" });
+    }
+
+    cars.splice(carIndex, 1);
+
+    res.status(204).send();
+})
+
 app.listen(PORT, HOST, () => {
   console.log(`Server listening on http://${HOST}:${PORT}...`);
 });
