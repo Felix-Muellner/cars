@@ -36,6 +36,17 @@ This project serves as a foundational backend project to practice core web API d
 
 ---
 
+## 🤖 Agentic Workflow
+
+The development workflow changed between phases:
+
+- **Phase 1 – manual local development:** The code was written and run locally by hand. The Gemini LLM chat interface on the web served as the assistant for questions, explanations and code suggestions, which were copied into the project manually.
+- **Phase 2 onwards – ephemeral GitHub Codespace:** Development moves into a short-lived GitHub Codespace defined by the repository's devcontainer configuration. [Claude Code CLI](https://claude.com/claude-code) runs directly in the Codespace, where it can read the codebase, edit files and run commands. The [GitHub CLI (`gh`)](https://cli.github.com/) handles planning and project management from the terminal, such as creating issues under milestones, labeling them and working through them.
+
+Because the environment is ephemeral and fully described by the devcontainer, every session starts from the same reproducible state, and the repository (code, issues and milestones) remains the single source of truth.
+
+---
+
 ## 🚀 API Endpoints (Cars)
 
 | Method | Endpoint | Description | Status Code |
