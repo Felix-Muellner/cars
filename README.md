@@ -31,7 +31,7 @@ This project serves as a foundational backend project to practice core web API d
 * **API Documentation:** OpenAPI Specification (Planned)
 * **Data Store (Phase 1):** In-memory (JavaScript array / JSON)
 * **Code Editor:** Visual Studio Code
-* **API Testing:** Thunder Client (VS Code Extension)
+* **API Testing:** Bruno, REST Client (VS Code Extensions)
 * **Version Control:** Git, GitHub
 
 ---
