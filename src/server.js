@@ -6,6 +6,46 @@ const PORT = 3000;
 
 app.use(express.json());
 
+/**
+ * @openapi
+ * components:
+ *   schemas:
+ *     Car:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: integer
+ *           example: 1
+ *         make:
+ *           type: string
+ *           example: Toyota
+ *         model:
+ *           type: string
+ *           example: Corolla
+ *         year:
+ *           type: integer
+ *           example: 2020
+ *     CarInput:
+ *       type: object
+ *       required: [make, model, year]
+ *       properties:
+ *         make:
+ *           type: string
+ *           example: Ford
+ *         model:
+ *           type: string
+ *           example: Mustang
+ *         year:
+ *           type: integer
+ *           example: 2022
+ *     Error:
+ *       type: object
+ *       properties:
+ *         message:
+ *           type: string
+ *           example: Car not found
+ */
+
 // temporary in-memory data store for project phase 1
 let cars = [
   { id: 1, make: "Toyota", model: "Corolla", year: 2020 },
