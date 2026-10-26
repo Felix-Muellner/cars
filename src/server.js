@@ -12,6 +12,8 @@ let cars = [
   { id: 2, make: "Honda", model: "Civic", year: 2021 },
 ];
 
+let nextId = 3;
+
 app.get('/api/cars', (req, res) => {
   res.status(200).json(cars);
 });
@@ -26,6 +28,25 @@ app.get('/api/cars/:id', (req, res) => {
 
     res.status(200).json(car);
 });
+
+app.post('/api/cars', (req, res) => {
+    const { make, model, year } = req.body;
+
+    if (!make || !model || !year) {
+        return res.status(400).json({ message: "Make, model and year are required"})
+    }
+
+    const newCar = {
+        id: nextId++,
+        make,
+        model,
+        year,
+    }
+
+    cars.push(newCar);
+
+    res.status(201).json(newCar);
+})
 
 app.listen(PORT, HOST, () => {
   console.log(`Server listening on http://${HOST}:${PORT}...`);

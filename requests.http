@@ -4,3 +4,14 @@ GET http://127.0.0.1:3000/api/cars
 
 ### Get car by ID
 GET http://127.0.0.1:3000/api/cars/1
+
+
+### Create a new car
+POST http://127.0.0.1:3000/api/cars
+Content-Type: application/json
+
+{
+  "make": "Ford",
+  "model": "Mustang",
+  "year": 2022
+}
