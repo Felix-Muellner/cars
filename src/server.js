@@ -1,10 +1,17 @@
 const express = require("express");
+const swaggerUi = require("swagger-ui-express");
+const openapiSpec = require("./openapi");
 const app = express();
 
 const HOST = "127.0.0.1";
 const PORT = 3000;
 
 app.use(express.json());
+
+app.get("/api-docs.json", (req, res) => {
+  res.json(openapiSpec);
+});
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(openapiSpec));
 
 /**
  * @openapi
