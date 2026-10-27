@@ -121,6 +121,37 @@ describe("PUT /api/cars/:id", () => {
   });
 });
 
+describe("error responses", () => {
+  test("returns 400 with a JSON body for malformed JSON", async () => {
+    const res = await request(createApp())
+      .post("/api/cars")
+      .set("Content-Type", "application/json")
+      .send("{bad");
+
+    assert.equal(res.status, 400);
+    assert.deepEqual(res.body, { message: "Invalid JSON" });
+  });
+
+  test("returns 404 with a JSON body for an unknown route", async () => {
+    const res = await request(createApp()).get("/nope");
+
+    assert.equal(res.status, 404);
+    assert.deepEqual(res.body, { message: "Not found" });
+  });
+
+  test("returns 500 with a JSON body and no stack trace for an unexpected error", async () => {
+    const store = {
+      list() {
+        throw new Error("boom");
+      },
+    };
+    const res = await request(createApp({ store })).get("/api/cars");
+
+    assert.equal(res.status, 500);
+    assert.deepEqual(res.body, { message: "Internal server error" });
+  });
+});
+
 describe("DELETE /api/cars/:id", () => {
   test("returns 204 with no content", async () => {
     const res = await request(createApp()).delete("/api/cars/1");
