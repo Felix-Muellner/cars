@@ -34,6 +34,12 @@ Content-Type: application/json
   "make": "Ford"
 }
 
+### Create car - Malformed JSON (400 Bad Request, "Invalid JSON")
+POST http://127.0.0.1:3000/api/cars
+Content-Type: application/json
+
+{ "make": "Ford",
+
 
 ### ==========================================
 ### PUT Requests
@@ -77,3 +83,11 @@ DELETE http://127.0.0.1:3000/api/cars/2
 
 ### Delete non-existent car (404 Not Found)
 DELETE http://127.0.0.1:3000/api/cars/999
+
+
+### ==========================================
+### Other Errors
+### ==========================================
+
+### Unknown route (404 Not Found, "Not found")
+GET http://127.0.0.1:3000/api/unknown
