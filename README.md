@@ -34,7 +34,7 @@ Phases are numbered by topic, not by the order in which they are completed.
 * **Framework:** Express.js
 * **API Documentation:** OpenAPI 3.0 via swagger-jsdoc, Swagger UI at `/api-docs`
 * **Testing:** node:test + supertest
-* **Linting:** ESLint
+* **Linting:** ESLint, Redocly CLI (OpenAPI spec)
 * **CI:** GitHub Actions (`npm run check` on every push and PR)
 * **Data Store (Phase 1):** In-memory (JavaScript array / JSON)
 * **Code Editor:** Visual Studio Code
@@ -82,6 +82,7 @@ The API will run at `http://127.0.0.1:3000`. Interactive API docs (Swagger UI) a
 
 ### Test & Lint
 ```bash
-npm test        # run the tests
-npm run check   # lint + tests (what CI runs)
+npm test          # run the tests
+npm run lint:api  # generate the OpenAPI spec and lint it
+npm run check     # lint + spec lint + tests (what CI runs)
 ```
