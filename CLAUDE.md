@@ -1,7 +1,7 @@
 # Cars API
 
 Node.js + Express 5 REST API for car inventory (CommonJS).
-Requires Node 20.19+ (CI uses Node 20; ESLint 10 needs >=20.19).
+Requires Node 24+ (CI and the devcontainer use Node 24, the current LTS).
 Domain terms and rules: read CONTEXT.md before changing behavior.
 
 ## Commands

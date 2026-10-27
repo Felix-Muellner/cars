@@ -17,6 +17,9 @@
   "author": "",
   "license": "MIT",
   "type": "commonjs",
+  "engines": {
+    "node": ">=24"
+  },
   "bugs": {
     "url": "https://github.com/Felix-Muellner/cars-api/issues"
   },
