@@ -25,6 +25,12 @@ describe("GET /api/cars/:id", () => {
     assert.deepEqual(res.body, { id: 1, make: "Toyota", model: "Corolla", year: 2020 });
   });
 
+  test("returns 400 for a non-numeric id", async () => {
+    const res = await request(createApp()).get("/api/cars/abc");
+
+    assert.equal(res.status, 400);
+  });
+
   test("returns 404 for an unknown id", async () => {
     const res = await request(createApp()).get("/api/cars/999");
 
@@ -47,7 +53,40 @@ describe("POST /api/cars", () => {
       .send({ make: "Ford", model: "Mustang" });
 
     assert.equal(res.status, 400);
-    assert.deepEqual(res.body, { message: "Make, model and year are required" });
+    assert.deepEqual(res.body, {
+      message: "Invalid car",
+      errors: ["year must be an integer from 1886 to next year"],
+    });
+  });
+
+  test("returns 400 when there is no body", async () => {
+    const res = await request(createApp()).post("/api/cars");
+
+    assert.equal(res.status, 400);
+  });
+
+  test("returns 400 when year is not a number", async () => {
+    const res = await request(createApp())
+      .post("/api/cars")
+      .send({ ...validCar, year: "banana" });
+
+    assert.equal(res.status, 400);
+  });
+
+  test("returns 400 when year is out of range", async () => {
+    const res = await request(createApp())
+      .post("/api/cars")
+      .send({ ...validCar, year: 1700 });
+
+    assert.equal(res.status, 400);
+  });
+
+  test("returns 400 when make is only whitespace", async () => {
+    const res = await request(createApp())
+      .post("/api/cars")
+      .send({ ...validCar, make: "   " });
+
+    assert.equal(res.status, 400);
   });
 });
 
@@ -65,7 +104,13 @@ describe("PUT /api/cars/:id", () => {
       .send({ make: "Ford" });
 
     assert.equal(res.status, 400);
-    assert.deepEqual(res.body, { message: "Make, model and year are required" });
+    assert.deepEqual(res.body, {
+      message: "Invalid car",
+      errors: [
+        "model must be a non-empty string",
+        "year must be an integer from 1886 to next year",
+      ],
+    });
   });
 
   test("returns 404 for an unknown id", async () => {
@@ -82,6 +127,12 @@ describe("DELETE /api/cars/:id", () => {
 
     assert.equal(res.status, 204);
     assert.equal(res.text, "");
+  });
+
+  test("returns 400 for a non-numeric id", async () => {
+    const res = await request(createApp()).delete("/api/cars/abc");
+
+    assert.equal(res.status, 400);
   });
 
   test("returns 404 for an unknown id", async () => {
