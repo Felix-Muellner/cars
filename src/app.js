@@ -1,8 +1,9 @@
 const express = require("express");
 const swaggerUi = require("swagger-ui-express");
 const openapiSpec = require("./openapi");
+const { createCarsStore, seedCars } = require("./carsStore");
 
-function createApp() {
+function createApp({ store = createCarsStore(seedCars) } = {}) {
   const app = express();
 
   app.use(express.json());
@@ -61,14 +62,6 @@ function createApp() {
    *           example: Car not found
    */
 
-  // temporary in-memory data store for project phase 1
-  let cars = [
-    { id: 1, make: "Toyota", model: "Corolla", year: 2020 },
-    { id: 2, make: "Honda", model: "Civic", year: 2021 },
-  ];
-
-  let nextId = 3;
-
   /**
    * @openapi
    * /api/cars:
@@ -86,7 +79,7 @@ function createApp() {
    *                 $ref: '#/components/schemas/Car'
    */
   app.get('/api/cars', (req, res) => {
-    res.status(200).json(cars);
+    res.status(200).json(store.list());
   });
 
   /**
@@ -113,7 +106,7 @@ function createApp() {
    */
   app.get('/api/cars/:id', (req, res) => {
       const carId = parseInt(req.params.id, 10);
-      const car = cars.find((c) => c.id === carId);
+      const car = store.get(carId);
 
       if (!car) {
           return res.status(404).json({ message: "Car not found" });
@@ -157,14 +150,7 @@ function createApp() {
           return res.status(400).json({ message: "Make, model and year are required" })
       }
 
-      const newCar = {
-          id: nextId++,
-          make,
-          model,
-          year,
-      }
-
-      cars.push(newCar);
+      const newCar = store.create({ make, model, year });
 
       res.status(201).json(newCar);
   });
@@ -207,9 +193,7 @@ function createApp() {
    */
   app.put('/api/cars/:id', (req, res) => {
       const carId = parseInt(req.params.id, 10);
-      const car = cars.find((c) => c.id === carId);
-
-      if (!car) {
+      if (!store.get(carId)) {
           return res.status(404).json({ message: "Car not found" });
       }
 
@@ -219,9 +203,7 @@ function createApp() {
           return res.status(400).json({ message: "Make, model and year are required" });
       }
 
-      car.make = make;
-      car.model = model;
-      car.year = year;
+      const car = store.update(carId, { make, model, year });
 
       res.status(200).json(car);
   });
@@ -246,13 +228,9 @@ function createApp() {
    */
   app.delete('/api/cars/:id', (req, res) => {
       const carId = parseInt(req.params.id, 10);
-      const carIndex = cars.findIndex((c) => c.id === carId);
-
-      if (carIndex === -1) {
+      if (!store.remove(carId)) {
           return res.status(404).json({ message: "Car not found" });
       }
-
-      cars.splice(carIndex, 1);
 
       res.status(204).send();
   })
