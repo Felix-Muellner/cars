@@ -82,11 +82,19 @@ function createApp({ store = createCarsStore(seedCars) } = {}) {
    *           example:
    *             message: Invalid car id
    *     InvalidCar:
-   *       description: make or model is not a non-empty string, or year is not an integer from 1886 to next year
+   *       description: The body is not valid JSON (message "Invalid JSON"), or make or model is not a non-empty string, or year is not an integer from 1886 to next year (message "Invalid car" with errors)
    *       content:
    *         application/json:
    *           schema:
    *             $ref: '#/components/schemas/ValidationError'
+   *     InternalError:
+   *       description: Unexpected server error
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/Error'
+   *           example:
+   *             message: Internal server error
    */
 
   /**
@@ -104,6 +112,8 @@ function createApp({ store = createCarsStore(seedCars) } = {}) {
    *               type: array
    *               items:
    *                 $ref: '#/components/schemas/Car'
+   *       500:
+   *         $ref: '#/components/responses/InternalError'
    */
   app.get('/api/cars', (req, res) => {
     res.status(200).json(store.list());
@@ -132,6 +142,8 @@ function createApp({ store = createCarsStore(seedCars) } = {}) {
    *           application/json:
    *             schema:
    *               $ref: '#/components/schemas/Error'
+   *       500:
+   *         $ref: '#/components/responses/InternalError'
    */
   app.get('/api/cars/:id', (req, res) => {
       const carId = parseCarId(req.params.id);
@@ -169,6 +181,8 @@ function createApp({ store = createCarsStore(seedCars) } = {}) {
    *               $ref: '#/components/schemas/Car'
    *       400:
    *         $ref: '#/components/responses/InvalidCar'
+   *       500:
+   *         $ref: '#/components/responses/InternalError'
    */
   app.post('/api/cars', (req, res) => {
       const { car, errors } = validateCarInput(req.body);
@@ -203,7 +217,7 @@ function createApp({ store = createCarsStore(seedCars) } = {}) {
    *             schema:
    *               $ref: '#/components/schemas/Car'
    *       400:
-   *         description: The id is not a positive integer (message "Invalid car id"), or the body is invalid (message "Invalid car" with errors)
+   *         description: The id is not a positive integer (message "Invalid car id"), the body is not valid JSON (message "Invalid JSON"), or the body is invalid (message "Invalid car" with errors)
    *         content:
    *           application/json:
    *             schema:
@@ -214,6 +228,8 @@ function createApp({ store = createCarsStore(seedCars) } = {}) {
    *           application/json:
    *             schema:
    *               $ref: '#/components/schemas/Error'
+   *       500:
+   *         $ref: '#/components/responses/InternalError'
    */
   app.put('/api/cars/:id', (req, res) => {
       const carId = parseCarId(req.params.id);
@@ -254,6 +270,8 @@ function createApp({ store = createCarsStore(seedCars) } = {}) {
    *           application/json:
    *             schema:
    *               $ref: '#/components/schemas/Error'
+   *       500:
+   *         $ref: '#/components/responses/InternalError'
    */
   app.delete('/api/cars/:id', (req, res) => {
       const carId = parseCarId(req.params.id);
@@ -267,6 +285,26 @@ function createApp({ store = createCarsStore(seedCars) } = {}) {
 
       res.status(204).send();
   })
+
+  app.use((req, res) => {
+      res.status(404).json({ message: "Not found" });
+  });
+
+  // Express treats a handler as an error handler only if it takes four arguments
+  // eslint-disable-next-line no-unused-vars
+  app.use((err, req, res, next) => {
+      if (err.type === "entity.parse.failed") {
+          return res.status(400).json({ message: "Invalid JSON" });
+      }
+
+      // client errors raised by express.json(), e.g. 413 payload too large
+      if (err.status >= 400 && err.status < 500) {
+          return res.status(err.status).json({ message: err.message });
+      }
+
+      console.error(err);
+      res.status(500).json({ message: "Internal server error" });
+  });
 
   return app;
 }
