@@ -42,6 +42,6 @@ Domain terms and rules: read CONTEXT.md before changing behavior.
 - New or changed behavior has a test in test/ that failed before the
   change (not needed for docs-, ci- or chore-only changes).
 - `npm run check` passes.
-- If the API changed: the `@openapi` annotations in src/app.js, README,
-  requests.http and CONTEXT.md are updated.
+- If the API changed: the `@openapi` annotations in src/app.js
+  (including their examples), README and CONTEXT.md are updated.
 - The PR description says which issue it closes ("Closes #N").

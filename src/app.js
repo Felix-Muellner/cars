@@ -25,7 +25,13 @@ function createApp({ store = createCarsStore(seedCars) } = {}) {
    *       description: Positive integer car id
    *       schema:
    *         type: integer
-   *       example: 1
+   *       examples:
+   *         existing:
+   *           summary: An existing car
+   *           value: 1
+   *         unknown:
+   *           summary: An unknown car (404)
+   *           value: 999
    *   schemas:
    *     Car:
    *       type: object
@@ -78,6 +84,44 @@ function createApp({ store = createCarsStore(seedCars) } = {}) {
    *           items:
    *             type: string
    *           example: [year must be an integer from 1886 to next year]
+   *   examples:
+   *     ValidCar:
+   *       summary: A valid car
+   *       value:
+   *         make: Ford
+   *         model: Mustang
+   *         year: 2022
+   *     MissingFields:
+   *       summary: Missing model and year (400)
+   *       value:
+   *         make: Ford
+   *     YearOutOfRange:
+   *       summary: Year before 1886 (400)
+   *       value:
+   *         make: Ford
+   *         model: Mustang
+   *         year: 1800
+   *     BlankMake:
+   *       summary: Make is only spaces (400)
+   *       value:
+   *         make: "  "
+   *         model: Mustang
+   *         year: 2022
+   *     InvalidCarIdError:
+   *       summary: The id is not a positive integer
+   *       value:
+   *         message: Invalid car id
+   *     InvalidJsonError:
+   *       summary: The body is not valid JSON
+   *       value:
+   *         message: Invalid JSON
+   *     InvalidCarError:
+   *       summary: The body fails validation
+   *       value:
+   *         message: Invalid car
+   *         errors:
+   *           - model must be a non-empty string
+   *           - year must be an integer from 1886 to next year
    *   responses:
    *     InvalidCarId:
    *       description: The id is not a positive integer
@@ -93,6 +137,11 @@ function createApp({ store = createCarsStore(seedCars) } = {}) {
    *         application/json:
    *           schema:
    *             $ref: '#/components/schemas/ValidationError'
+   *           examples:
+   *             invalidJson:
+   *               $ref: '#/components/examples/InvalidJsonError'
+   *             invalidCar:
+   *               $ref: '#/components/examples/InvalidCarError'
    *     CarNotFound:
    *       description: Car not found
    *       content:
@@ -185,6 +234,15 @@ function createApp({ store = createCarsStore(seedCars) } = {}) {
    *         application/json:
    *           schema:
    *             $ref: '#/components/schemas/CarInput'
+   *           examples:
+   *             valid:
+   *               $ref: '#/components/examples/ValidCar'
+   *             missingFields:
+   *               $ref: '#/components/examples/MissingFields'
+   *             yearOutOfRange:
+   *               $ref: '#/components/examples/YearOutOfRange'
+   *             blankMake:
+   *               $ref: '#/components/examples/BlankMake'
    *     responses:
    *       201:
    *         description: The created car
@@ -223,6 +281,15 @@ function createApp({ store = createCarsStore(seedCars) } = {}) {
    *         application/json:
    *           schema:
    *             $ref: '#/components/schemas/CarInput'
+   *           examples:
+   *             valid:
+   *               $ref: '#/components/examples/ValidCar'
+   *             missingFields:
+   *               $ref: '#/components/examples/MissingFields'
+   *             yearOutOfRange:
+   *               $ref: '#/components/examples/YearOutOfRange'
+   *             blankMake:
+   *               $ref: '#/components/examples/BlankMake'
    *     responses:
    *       200:
    *         description: The updated car
@@ -236,6 +303,13 @@ function createApp({ store = createCarsStore(seedCars) } = {}) {
    *           application/json:
    *             schema:
    *               $ref: '#/components/schemas/ValidationError'
+   *             examples:
+   *               invalidId:
+   *                 $ref: '#/components/examples/InvalidCarIdError'
+   *               invalidJson:
+   *                 $ref: '#/components/examples/InvalidJsonError'
+   *               invalidCar:
+   *                 $ref: '#/components/examples/InvalidCarError'
    *       404:
    *         description: Car not found (checked after the id and before the body is validated)
    *         content:

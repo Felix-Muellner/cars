@@ -12,7 +12,7 @@ This project serves as a foundational backend project to practice core web API d
   Implement full CRUD endpoints with Express, standard HTTP status codes, and an in-memory data store.
 - [x] **Phase 1.5: Agent-ready foundation**  
   Add tests, linting, CI and written context (CLAUDE.md, CONTEXT.md) so agents can check their own work.
-- [ ] **Phase 2: API Documentation** *(in progress)*  
+- [x] **Phase 2: API Documentation**  
   Define and document all endpoints using the OpenAPI Specification (OAS).
 - [ ] **Phase 3: Database Persistence**  
   Integrate a production database (PostgreSQL / MongoDB) with schema validation.
@@ -38,7 +38,7 @@ Phases are numbered by topic, not by the order in which they are completed.
 * **CI:** GitHub Actions (`npm run check` on every push and PR)
 * **Data Store (Phase 1):** In-memory (JavaScript array / JSON)
 * **Code Editor:** Visual Studio Code
-* **API Testing:** Bruno, REST Client (VS Code Extensions)
+* **API Testing:** Swagger UI ("Try it out" at `/api-docs`, with example requests for each endpoint)
 * **Version Control:** Git, GitHub
 
 ---
@@ -78,7 +78,7 @@ Every error response has a JSON body `{ "message": string }`. Validation failure
 npm install
 npm start
 ```
-The API will run at `http://127.0.0.1:3000`. Interactive API docs (Swagger UI) are at `http://127.0.0.1:3000/api-docs`, and the raw OpenAPI spec is at `/api-docs.json`.
+The API will run at `http://127.0.0.1:3000`. Interactive API docs (Swagger UI) are at `http://127.0.0.1:3000/api-docs`. Use "Try it out" and pick a named example to send a request. The raw OpenAPI spec is at `/api-docs.json`.
 
 ### Test & Lint
 ```bash

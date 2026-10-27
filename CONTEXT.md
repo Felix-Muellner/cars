@@ -1,7 +1,7 @@
 # Cars API: domain context
 
 Shared vocabulary and rules. Use these exact names in code, tests,
-OpenAPI schemas, requests.http and the README.
+OpenAPI schemas and examples, and the README.
 
 ## Terms
 
