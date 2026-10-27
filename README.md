@@ -66,7 +66,7 @@ Every error response has a JSON body `{ "message": string }`. Validation failure
 
 ### Prerequisites
 
-- [Node.js](https://nodejs.org/) 20.19 or later
+- [Node.js](https://nodejs.org/) 24 or later
 - [npm](https://www.npmjs.com/)
 
 ### Setup & Run
