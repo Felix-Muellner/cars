@@ -10,13 +10,13 @@ This project serves as a foundational backend project to practice core web API d
 
 - [x] **Phase 1: Core REST API**  
   Implement full CRUD endpoints with Express, standard HTTP status codes, and an in-memory data store.
-- [ ] **Phase 2: API Documentation**  
+- [x] **Phase 2: API Documentation**  
   Define and document all endpoints using the OpenAPI Specification (OAS).
 - [ ] **Phase 3: Database Persistence**  
   Integrate a production database (PostgreSQL / MongoDB) with schema validation.
 - [ ] **Phase 4: Containerization**  
   Containerize the application and database using Docker and Docker Compose.
-- [ ] **Phase 5: CI/CD Pipeline**  
+- [x] **Phase 5: CI/CD Pipeline**  
   Automate linting and testing using GitHub Actions.
 - [ ] **Phase 6: Cloud Deployment**  
   Deploy the containerized service to a cloud provider.
@@ -28,7 +28,10 @@ This project serves as a foundational backend project to practice core web API d
 * **Runtime:** Node.js
 * **Package Manager:** npm
 * **Framework:** Express.js
-* **API Documentation:** OpenAPI Specification (Planned)
+* **API Documentation:** OpenAPI 3.0 via swagger-jsdoc, Swagger UI at `/api-docs`
+* **Testing:** node:test + supertest
+* **Linting:** ESLint
+* **CI:** GitHub Actions (`npm run check` on every push and PR)
 * **Data Store (Phase 1):** In-memory (JavaScript array / JSON)
 * **Code Editor:** Visual Studio Code
 * **API Testing:** Bruno, REST Client (VS Code Extensions)
@@ -63,7 +66,7 @@ Every error response has a JSON body `{ "message": string }`. Validation failure
 
 ### Prerequisites
 
-- [Node.js](https://nodejs.org/)
+- [Node.js](https://nodejs.org/) 20.19 or later
 - [npm](https://www.npmjs.com/)
 
 ### Setup & Run
@@ -71,4 +74,10 @@ Every error response has a JSON body `{ "message": string }`. Validation failure
 npm install
 npm start
 ```
-The API will run at `http://127.0.0.1:3000`.
+The API will run at `http://127.0.0.1:3000`. Interactive API docs (Swagger UI) are at `http://127.0.0.1:3000/api-docs`, and the raw OpenAPI spec is at `/api-docs.json`.
+
+### Test & Lint
+```bash
+npm test        # run the tests
+npm run check   # lint + tests (what CI runs)
+```
