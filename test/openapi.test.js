@@ -1,0 +1,38 @@
+const { test, describe } = require("node:test");
+const assert = require("node:assert/strict");
+const request = require("supertest");
+const { createApp } = require("../src/app");
+
+describe("GET /api-docs.json", () => {
+  test("returns 200 with an OpenAPI 3.0 spec", async () => {
+    const res = await request(createApp()).get("/api-docs.json");
+
+    assert.equal(res.status, 200);
+    assert.equal(res.body.openapi, "3.0.0");
+  });
+
+  test("documents every car operation with an operationId", async () => {
+    const res = await request(createApp()).get("/api-docs.json");
+
+    const operations = Object.entries(res.body.paths).flatMap(([path, methods]) =>
+      Object.entries(methods).map(([method, op]) => [`${method.toUpperCase()} ${path}`, op.operationId])
+    );
+    assert.deepEqual(Object.fromEntries(operations), {
+      "GET /api/cars": "listCars",
+      "POST /api/cars": "createCar",
+      "GET /api/cars/{id}": "getCar",
+      "PUT /api/cars/{id}": "replaceCar",
+      "DELETE /api/cars/{id}": "deleteCar",
+    });
+  });
+});
+
+describe("GET /api-docs", () => {
+  test("returns 200 with the Swagger UI page", async () => {
+    const res = await request(createApp()).get("/api-docs/");
+
+    assert.equal(res.status, 200);
+    assert.match(res.headers["content-type"], /text\/html/);
+    assert.match(res.text, /swagger-ui/);
+  });
+});

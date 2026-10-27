@@ -48,12 +48,18 @@ function createApp({ store = createCarsStore(seedCars) } = {}) {
    *       properties:
    *         make:
    *           type: string
+   *           minLength: 1
+   *           description: Must not be empty after trimming spaces
    *           example: Ford
    *         model:
    *           type: string
+   *           minLength: 1
+   *           description: Must not be empty after trimming spaces
    *           example: Mustang
    *         year:
    *           type: integer
+   *           minimum: 1886
+   *           description: From 1886 to next year
    *           example: 2022
    *     Error:
    *       type: object
@@ -87,6 +93,14 @@ function createApp({ store = createCarsStore(seedCars) } = {}) {
    *         application/json:
    *           schema:
    *             $ref: '#/components/schemas/ValidationError'
+   *     CarNotFound:
+   *       description: Car not found
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/Error'
+   *           example:
+   *             message: Car not found
    *     InternalError:
    *       description: Unexpected server error
    *       content:
@@ -102,6 +116,7 @@ function createApp({ store = createCarsStore(seedCars) } = {}) {
    * /api/cars:
    *   get:
    *     tags: [Cars]
+   *     operationId: listCars
    *     summary: List all cars
    *     responses:
    *       200:
@@ -124,6 +139,7 @@ function createApp({ store = createCarsStore(seedCars) } = {}) {
    * /api/cars/{id}:
    *   get:
    *     tags: [Cars]
+   *     operationId: getCar
    *     summary: Get a car by id
    *     parameters:
    *       - $ref: '#/components/parameters/CarId'
@@ -137,11 +153,7 @@ function createApp({ store = createCarsStore(seedCars) } = {}) {
    *       400:
    *         $ref: '#/components/responses/InvalidCarId'
    *       404:
-   *         description: Car not found
-   *         content:
-   *           application/json:
-   *             schema:
-   *               $ref: '#/components/schemas/Error'
+   *         $ref: '#/components/responses/CarNotFound'
    *       500:
    *         $ref: '#/components/responses/InternalError'
    */
@@ -165,6 +177,7 @@ function createApp({ store = createCarsStore(seedCars) } = {}) {
    * /api/cars:
    *   post:
    *     tags: [Cars]
+   *     operationId: createCar
    *     summary: Create a car
    *     requestBody:
    *       required: true
@@ -200,6 +213,7 @@ function createApp({ store = createCarsStore(seedCars) } = {}) {
    * /api/cars/{id}:
    *   put:
    *     tags: [Cars]
+   *     operationId: replaceCar
    *     summary: Replace a car
    *     parameters:
    *       - $ref: '#/components/parameters/CarId'
@@ -228,6 +242,8 @@ function createApp({ store = createCarsStore(seedCars) } = {}) {
    *           application/json:
    *             schema:
    *               $ref: '#/components/schemas/Error'
+   *             example:
+   *               message: Car not found
    *       500:
    *         $ref: '#/components/responses/InternalError'
    */
@@ -256,6 +272,7 @@ function createApp({ store = createCarsStore(seedCars) } = {}) {
    * /api/cars/{id}:
    *   delete:
    *     tags: [Cars]
+   *     operationId: deleteCar
    *     summary: Delete a car
    *     parameters:
    *       - $ref: '#/components/parameters/CarId'
@@ -265,11 +282,7 @@ function createApp({ store = createCarsStore(seedCars) } = {}) {
    *       400:
    *         $ref: '#/components/responses/InvalidCarId'
    *       404:
-   *         description: Car not found
-   *         content:
-   *           application/json:
-   *             schema:
-   *               $ref: '#/components/schemas/Error'
+   *         $ref: '#/components/responses/CarNotFound'
    *       500:
    *         $ref: '#/components/responses/InternalError'
    */

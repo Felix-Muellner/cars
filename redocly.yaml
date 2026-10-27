@@ -1,0 +1,6 @@
+extends:
+  - recommended
+
+rules:
+  # GET /api/cars takes no input, so it has no 4xx response to document
+  operation-4xx-response: off

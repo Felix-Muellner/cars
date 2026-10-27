@@ -9,7 +9,9 @@ Domain terms and rules: read CONTEXT.md before changing behavior.
 - `npm start`: run the API on http://127.0.0.1:3000
 - `npm test`: run the tests (`node --test`, with node:test + supertest).
   Put tests in test/*.test.js.
-- `npm run check`: lint + tests
+- `npm run lint:api`: generate the OpenAPI spec and lint it with
+  Redocly (rules in redocly.yaml)
+- `npm run check`: lint + spec lint + tests
 
 ## Code layout
 
@@ -20,6 +22,8 @@ Domain terms and rules: read CONTEXT.md before changing behavior.
 - `src/carsStore.js`: all data access, via list/get/create/update/remove
 - `src/validation.js`: input and id validation
 - `src/server.js`: starts the server only
+- `scripts/build-openapi.js`: writes the spec to openapi.json (git-ignored)
+  for `npm run lint:api`
 
 ## Workflow Guidelines
 
