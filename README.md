@@ -10,16 +10,20 @@ This project serves as a foundational backend project to practice core web API d
 
 - [x] **Phase 1: Core REST API**  
   Implement full CRUD endpoints with Express, standard HTTP status codes, and an in-memory data store.
-- [x] **Phase 2: API Documentation**  
+- [x] **Phase 1.5: Agent-ready foundation**  
+  Add tests, linting, CI and written context (CLAUDE.md, CONTEXT.md) so agents can check their own work.
+- [ ] **Phase 2: API Documentation** *(in progress)*  
   Define and document all endpoints using the OpenAPI Specification (OAS).
 - [ ] **Phase 3: Database Persistence**  
   Integrate a production database (PostgreSQL / MongoDB) with schema validation.
 - [ ] **Phase 4: Containerization**  
   Containerize the application and database using Docker and Docker Compose.
-- [x] **Phase 5: CI/CD Pipeline**  
-  Automate linting and testing using GitHub Actions.
+- [ ] **Phase 5: Continuous Delivery**  
+  Build and publish the container image and deploy automatically from GitHub Actions. *(CI, meaning lint and tests on every PR, was delivered in Phase 1.5.)*
 - [ ] **Phase 6: Cloud Deployment**  
   Deploy the containerized service to a cloud provider.
+
+Phases are numbered by topic, not by the order in which they are completed.
 
 ---
 
