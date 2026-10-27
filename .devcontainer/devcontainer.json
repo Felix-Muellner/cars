@@ -4,10 +4,5 @@
   "features": {
     "ghcr.io/devcontainers/features/github-cli:1": {}
   },
-  "customizations": {
-    "vscode": {
-      "extensions": ["humao.rest-client"]
-    }
-  },
   "postCreateCommand": "npm install && npm install -g @anthropic-ai/claude-code"
 }
