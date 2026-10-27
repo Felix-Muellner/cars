@@ -2,6 +2,7 @@ const express = require("express");
 const swaggerUi = require("swagger-ui-express");
 const openapiSpec = require("./openapi");
 const { createCarsStore, seedCars } = require("./carsStore");
+const { validateCarInput, parseCarId } = require("./validation");
 
 function createApp({ store = createCarsStore(seedCars) } = {}) {
   const app = express();
@@ -21,7 +22,7 @@ function createApp({ store = createCarsStore(seedCars) } = {}) {
    *       name: id
    *       in: path
    *       required: true
-   *       description: Numeric car id
+   *       description: Positive integer car id
    *       schema:
    *         type: integer
    *       example: 1
@@ -60,6 +61,32 @@ function createApp({ store = createCarsStore(seedCars) } = {}) {
    *         message:
    *           type: string
    *           example: Car not found
+   *     ValidationError:
+   *       type: object
+   *       properties:
+   *         message:
+   *           type: string
+   *           example: Invalid car
+   *         errors:
+   *           type: array
+   *           items:
+   *             type: string
+   *           example: [year must be an integer from 1886 to next year]
+   *   responses:
+   *     InvalidCarId:
+   *       description: The id is not a positive integer
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/Error'
+   *           example:
+   *             message: Invalid car id
+   *     InvalidCar:
+   *       description: make or model is not a non-empty string, or year is not an integer from 1886 to next year
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/ValidationError'
    */
 
   /**
@@ -97,15 +124,21 @@ function createApp({ store = createCarsStore(seedCars) } = {}) {
    *           application/json:
    *             schema:
    *               $ref: '#/components/schemas/Car'
+   *       400:
+   *         $ref: '#/components/responses/InvalidCarId'
    *       404:
-   *         description: Car not found (also returned for non-numeric ids)
+   *         description: Car not found
    *         content:
    *           application/json:
    *             schema:
    *               $ref: '#/components/schemas/Error'
    */
   app.get('/api/cars/:id', (req, res) => {
-      const carId = parseInt(req.params.id, 10);
+      const carId = parseCarId(req.params.id);
+      if (carId === undefined) {
+          return res.status(400).json({ message: "Invalid car id" });
+      }
+
       const car = store.get(carId);
 
       if (!car) {
@@ -135,22 +168,15 @@ function createApp({ store = createCarsStore(seedCars) } = {}) {
    *             schema:
    *               $ref: '#/components/schemas/Car'
    *       400:
-   *         description: make, model or year is missing
-   *         content:
-   *           application/json:
-   *             schema:
-   *               $ref: '#/components/schemas/Error'
-   *             example:
-   *               message: Make, model and year are required
+   *         $ref: '#/components/responses/InvalidCar'
    */
   app.post('/api/cars', (req, res) => {
-      const { make, model, year } = req.body;
-
-      if (!make || !model || !year) {
-          return res.status(400).json({ message: "Make, model and year are required" })
+      const { car, errors } = validateCarInput(req.body);
+      if (!car) {
+          return res.status(400).json({ message: "Invalid car", errors });
       }
 
-      const newCar = store.create({ make, model, year });
+      const newCar = store.create(car);
 
       res.status(201).json(newCar);
   });
@@ -177,35 +203,36 @@ function createApp({ store = createCarsStore(seedCars) } = {}) {
    *             schema:
    *               $ref: '#/components/schemas/Car'
    *       400:
-   *         description: make, model or year is missing
+   *         description: The id is not a positive integer (message "Invalid car id"), or the body is invalid (message "Invalid car" with errors)
    *         content:
    *           application/json:
    *             schema:
-   *               $ref: '#/components/schemas/Error'
-   *             example:
-   *               message: Make, model and year are required
+   *               $ref: '#/components/schemas/ValidationError'
    *       404:
-   *         description: Car not found (checked before the body is validated)
+   *         description: Car not found (checked after the id and before the body is validated)
    *         content:
    *           application/json:
    *             schema:
    *               $ref: '#/components/schemas/Error'
    */
   app.put('/api/cars/:id', (req, res) => {
-      const carId = parseInt(req.params.id, 10);
+      const carId = parseCarId(req.params.id);
+      if (carId === undefined) {
+          return res.status(400).json({ message: "Invalid car id" });
+      }
+
       if (!store.get(carId)) {
           return res.status(404).json({ message: "Car not found" });
       }
 
-      const { make, model, year } = req.body;
-
-      if (!make || !model || !year) {
-          return res.status(400).json({ message: "Make, model and year are required" });
+      const { car, errors } = validateCarInput(req.body);
+      if (!car) {
+          return res.status(400).json({ message: "Invalid car", errors });
       }
 
-      const car = store.update(carId, { make, model, year });
+      const updatedCar = store.update(carId, car);
 
-      res.status(200).json(car);
+      res.status(200).json(updatedCar);
   });
 
   /**
@@ -219,6 +246,8 @@ function createApp({ store = createCarsStore(seedCars) } = {}) {
    *     responses:
    *       204:
    *         description: Car deleted, no content
+   *       400:
+   *         $ref: '#/components/responses/InvalidCarId'
    *       404:
    *         description: Car not found
    *         content:
@@ -227,7 +256,11 @@ function createApp({ store = createCarsStore(seedCars) } = {}) {
    *               $ref: '#/components/schemas/Error'
    */
   app.delete('/api/cars/:id', (req, res) => {
-      const carId = parseInt(req.params.id, 10);
+      const carId = parseCarId(req.params.id);
+      if (carId === undefined) {
+          return res.status(400).json({ message: "Invalid car id" });
+      }
+
       if (!store.remove(carId)) {
           return res.status(404).json({ message: "Car not found" });
       }

@@ -52,10 +52,10 @@ Because the environment is ephemeral and fully described by the devcontainer, ev
 | Method | Endpoint | Description | Status Code |
 | :--- | :--- | :--- | :--- |
 | `GET` | `/api/cars` | Retrieve all cars | `200 OK` |
-| `GET` | `/api/cars/:id` | Retrieve a specific car by ID | `200 OK` / `404 Not Found` |
+| `GET` | `/api/cars/:id` | Retrieve a specific car by ID | `200 OK` / `400 Bad Request` / `404 Not Found` |
 | `POST` | `/api/cars` | Add a new car | `201 Created` / `400 Bad Request` |
 | `PUT` | `/api/cars/:id` | Update an existing car | `200 OK` / `400 Bad Request` / `404 Not Found` |
-| `DELETE` | `/api/cars/:id` | Remove a car by ID | `204 No Content` / `404 Not Found` |
+| `DELETE` | `/api/cars/:id` | Remove a car by ID | `204 No Content` / `400 Bad Request` / `404 Not Found` |
 
 ## ⚙️ Getting Started
 
