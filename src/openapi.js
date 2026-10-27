@@ -12,7 +12,7 @@ const options = {
     servers: [{ url: "http://127.0.0.1:3000" }],
     tags: [{ name: "Cars", description: "Car inventory operations" }],
   },
-  apis: [`${__dirname}/server.js`],
+  apis: [`${__dirname}/app.js`],
 };
 
 module.exports = swaggerJsdoc(options);
