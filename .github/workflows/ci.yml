@@ -8,11 +8,33 @@ on:
 jobs:
   check:
     runs-on: ubuntu-latest
+    services:
+      # same image as the devcontainer; CI only needs the test database
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_USER: cars
+          POSTGRES_PASSWORD: cars
+          POSTGRES_DB: cars_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -h 127.0.0.1 -U cars -d cars_test"
+          --health-interval 2s
+          --health-timeout 5s
+          --health-retries 15
+    env:
+      # throwaway CI database, so this password is not a secret
+      TEST_DATABASE_URL: postgres://cars:cars@localhost:5432/cars_test
     steps:
       - uses: actions/checkout@v7
+        with:
+          # full history, so the migration check can compare with main
+          fetch-depth: 0
       - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: npm
       - run: npm ci
+      - run: npm run check:migrations
       - run: npm run check
