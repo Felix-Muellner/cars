@@ -9,6 +9,7 @@ const request = require("supertest");
 const { createApp } = require("../src/app");
 const { createPool, checkDatabase, describeUrl } = require("../src/database");
 const { migrate } = require("../src/migrate");
+const { seed } = require("../src/seed");
 const { createPgCarsStore } = require("../src/pgCarsStore");
 const { storeContract } = require("./storeContract");
 
@@ -150,6 +151,28 @@ describe("postgres", () => {
       assert.deepEqual(replaced.body, { id: car.id, make: "Honda", model: "Civic", year: 2021 });
       assert.equal(deleted.status, 204);
       assert.equal(afterDelete.status, 404);
+    });
+  });
+
+  describe("seed", () => {
+    test("adds the two example cars to an empty table", async () => {
+      const added = await seed(pool);
+
+      assert.equal(added, 2);
+      assert.deepEqual(await createPgCarsStore(pool).list(), [
+        { id: 1, make: "Toyota", model: "Corolla", year: 2020 },
+        { id: 2, make: "Honda", model: "Civic", year: 2021 },
+      ]);
+    });
+
+    test("does nothing when the table already has a car", async () => {
+      const store = createPgCarsStore(pool);
+      const ford = await store.create({ make: "Ford", model: "Mustang", year: 2022 });
+
+      const added = await seed(pool);
+
+      assert.equal(added, 0);
+      assert.deepEqual(await store.list(), [ford]);
     });
   });
 

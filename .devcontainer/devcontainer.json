@@ -8,5 +8,5 @@
   },
   "forwardPorts": [3000],
   "postCreateCommand": "npm install && npm install -g @anthropic-ai/claude-code",
-  "postStartCommand": "npm run migrate"
+  "postStartCommand": "npm run migrate && npm run db:seed"
 }
