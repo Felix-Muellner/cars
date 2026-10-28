@@ -2,8 +2,12 @@ const { Pool } = require("pg");
 
 // the URL without the password, safe to print
 function describeUrl(databaseUrl) {
-  const url = new URL(databaseUrl);
-  return `${url.protocol}//${url.host}${url.pathname}`;
+  try {
+    const url = new URL(databaseUrl);
+    return `${url.protocol}//${url.host}${url.pathname}`;
+  } catch {
+    return "the configured DATABASE_URL";
+  }
 }
 
 function createPool(databaseUrl) {

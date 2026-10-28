@@ -174,6 +174,21 @@ describe("PUT /api/cars/:id", () => {
     assert.equal(res.status, 404);
     assert.deepEqual(res.body, { message: "Car not found" });
   });
+
+  test("returns 404 when the car is deleted between the check and the update", async () => {
+    const store = {
+      async get(id) {
+        return { id, ...validCar };
+      },
+      async update() {
+        return undefined;
+      },
+    };
+    const res = await request(createApp({ store })).put("/api/cars/1").send(validCar);
+
+    assert.equal(res.status, 404);
+    assert.deepEqual(res.body, { message: "Car not found" });
+  });
 });
 
 describe("error responses", () => {

@@ -349,6 +349,10 @@ function createApp({ store = createCarsStore(seedCars) } = {}) {
       }
 
       const updatedCar = await store.update(carId, car);
+      // the car can be deleted between the check above and the update
+      if (!updatedCar) {
+          return res.status(404).json({ message: "Car not found" });
+      }
 
       res.status(200).json(updatedCar);
   });

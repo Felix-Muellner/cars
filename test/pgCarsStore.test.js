@@ -65,6 +65,13 @@ describe("server startup without a usable database", () => {
     assert.match(result.stderr, /Cannot connect to the database at postgres:\/\/127\.0\.0\.1:1\/cars/);
     assert.doesNotMatch(result.stderr, /secret/);
   });
+
+  test("exits with a clear message when DATABASE_URL is not a valid URL", () => {
+    const result = startServer({ DATABASE_URL: "not a url" });
+
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /Cannot connect to the database at the configured DATABASE_URL/);
+  });
 });
 
 test("a pool logs errors of idle connections instead of crashing the app", () => {
