@@ -1,4 +1,5 @@
-// temporary in-memory data store for project phase 1
+// in-memory store: the default for createApp() and the route tests; same
+// interface as pgCarsStore.js (both must pass test/storeContract.js)
 const seedCars = [
   { id: 1, make: "Toyota", model: "Corolla", year: 2020 },
   { id: 2, make: "Honda", model: "Civic", year: 2021 },

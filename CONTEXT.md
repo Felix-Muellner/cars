@@ -12,9 +12,22 @@ OpenAPI schemas and examples, and the README.
 - **Error**: every 4xx response body is `{ "message": string }`,
   plus `errors: string[]` for validation failures. Every 5xx body is
   `{ "message": "Internal server error" }`, never a stack trace.
-- **Store**: the module that keeps cars (`src/carsStore.js`).
-  Routes talk to it only through list, get, create, update, remove,
-  which all return Promises.
+- **Store**: the object that keeps cars. Routes talk to it only
+  through list, get, create, update, remove, which all return
+  Promises. Two implementations with the same behavior:
+  - in-memory (`createCarsStore` in `src/carsStore.js`): the default
+    for `createApp()`, used by the route tests, seeded with two cars;
+  - Postgres (`createPgCarsStore` in `src/pgCarsStore.js`): used by
+    `src/server.js`.
+- **Store contract**: the tests in `test/storeContract.js` that both
+  stores must pass.
+- **Database**: PostgreSQL 18. `cars` is the development database
+  (`DATABASE_URL`), `cars_test` the test database
+  (`TEST_DATABASE_URL`), whose cars table is emptied before each test.
+- **Migration**: one numbered SQL file in `migrations/` that changes
+  the schema, applied once per database by `npm run migrate`
+  (node-pg-migrate records it in the `pgmigrations` table).
+- **Seed data**: the two example cars (Toyota Corolla, Honda Civic).
 
 ## Rules
 
@@ -29,44 +42,36 @@ OpenAPI schemas and examples, and the README.
   Order of checks: bad id 400, unknown id 404, bad body 400.
 - A body that is not valid JSON gives 400 "Invalid JSON". An unknown
   route gives 404 "Not found".
-- Data is in memory and resets on restart (until Phase 3).
-- Ids are never reused and may have gaps. Never assume ids are
-  consecutive.
+- `GET /api/cars` lists cars ordered by id.
+- Ids are never reused and may have gaps (Postgres also uses up an id
+  when an insert fails). Never assume ids are consecutive.
 - The server listens on 127.0.0.1:3000 (hard-coded until Phase 4).
 
-## Phase 3: decided, not built yet
+### Database
 
-Each Phase 3 issue moves its rules from here into Terms and Rules
-above when it lands.
-
-- **Database**: PostgreSQL 18 (`postgres:18` image). The devcontainer
-  runs it as a Docker Compose service next to the workspace; CI runs
-  it as a GitHub Actions service container. Two databases: `cars`
-  (development) and `cars_test` (tests only).
-- **Schema**: table `cars` with `id integer GENERATED ALWAYS AS
-  IDENTITY PRIMARY KEY`, `make varchar(100)` and `model varchar(100)`
-  (NOT NULL, not blank after trimming), `year integer` (NOT NULL,
-  >= 1886). "Year at most next year" is checked in validation.js only.
-- **Migrations**: node-pg-migrate, written in SQL, in `migrations/`.
-  Run with `npm run migrate`; the app never migrates itself. Never
-  edit, rename or delete a migration that is on `main`; add a new one.
-  CI enforces this.
-- **Queries**: `pg` with parameters (`$1`, `$2`, ...) only. Never build
-  SQL by string concatenation or template strings.
-- **Store**: two implementations: in-memory
-  (`createCarsStore`, default for `createApp()`) and Postgres
-  (`createPgCarsStore`, used by server.js). `list` is ordered by id.
-- **Tests**: shared store contract tests run against both stores.
-  Postgres tests live in one file, use `cars_test`, and run
-  `TRUNCATE cars RESTART IDENTITY` before each test.
-- **Config**: `DATABASE_URL` and `TEST_DATABASE_URL` (see
-  `.env.example`). The app refuses to start if `DATABASE_URL` is not
-  set.
-- **Database down**: at startup the app exits with a clear message.
-  During a request it gives 500 "Internal server error" after at most
-  a 5 second connection timeout.
-- **Seed data**: `npm run db:seed` adds the two example cars to the
-  dev database only when the table is empty. Never in a migration.
+- Table `cars`: `id integer GENERATED ALWAYS AS IDENTITY PRIMARY KEY`
+  (clients cannot choose ids), `make varchar(100)` and
+  `model varchar(100)` (NOT NULL, not blank after trimming),
+  `year integer` (NOT NULL, >= 1886). These constraints are a safety
+  net behind `src/validation.js`; "year at most next year" changes
+  over time, so only validation.js checks it.
+- Put values into queries only as parameters (`$1`, `$2`, ...), never
+  into the SQL text. This prevents SQL injection.
+- Never edit, rename or delete a migration that is on `main`; change
+  the schema with a new migration. CI enforces this
+  (`npm run check:migrations`), and node-pg-migrate refuses to run a
+  new migration that sorts before one that already ran.
+- The app never migrates the database itself. At startup it exits
+  with a clear message if `DATABASE_URL` is not set, the database is
+  unreachable, or the cars table is missing ("Run npm run migrate.").
+- If the database fails during a request, the response is 500
+  "Internal server error" (after at most a 5 second connection
+  timeout); the app keeps running and recovers when the database is
+  back.
+- Seed data goes only into the development database, only when its
+  cars table is empty (`npm run db:seed`), and never in a migration.
+- All tests that use Postgres live in `test/pgCarsStore.test.js`,
+  because `node --test` runs test files in parallel.
 
 ## Later phases
 
