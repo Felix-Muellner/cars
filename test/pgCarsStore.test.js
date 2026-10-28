@@ -2,16 +2,15 @@
 // in parallel, and every test here empties the cars table of cars_test.
 const { test, describe, before, beforeEach, after } = require("node:test");
 const assert = require("node:assert/strict");
+const { spawnSync } = require("node:child_process");
+const path = require("node:path");
 const { Pool } = require("pg");
+const request = require("supertest");
+const { createApp } = require("../src/app");
+const { createPool, checkDatabase, describeUrl } = require("../src/database");
 const { migrate } = require("../src/migrate");
 const { createPgCarsStore } = require("../src/pgCarsStore");
 const { storeContract } = require("./storeContract");
-
-// the URL without the password, safe to print
-function describeUrl(databaseUrl) {
-  const url = new URL(databaseUrl);
-  return `${url.protocol}//${url.host}${url.pathname}`;
-}
 
 // returns a pool for databaseUrl, or rejects with one clear message
 async function connectToTestDatabase(databaseUrl) {
@@ -19,7 +18,7 @@ async function connectToTestDatabase(databaseUrl) {
     throw new Error("TEST_DATABASE_URL is not set (see .env.example)");
   }
 
-  const pool = new Pool({ connectionString: databaseUrl, connectionTimeoutMillis: 5000 });
+  const pool = createPool(databaseUrl);
   try {
     await pool.query("SELECT 1");
   } catch (err) {
@@ -41,6 +40,50 @@ test("connecting to an unreachable database fails with one clear message", async
   });
 });
 
+describe("server startup without a usable database", () => {
+  // runs src/server.js with only the given environment variables
+  const startServer = (env) =>
+    spawnSync(process.execPath, ["src/server.js"], {
+      cwd: path.join(__dirname, ".."),
+      env,
+      encoding: "utf8",
+      timeout: 10000,
+    });
+
+  test("exits with a clear message when DATABASE_URL is not set", () => {
+    const result = startServer({});
+
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /DATABASE_URL is not set/);
+  });
+
+  test("exits with a clear message when the database is unreachable", () => {
+    const result = startServer({ DATABASE_URL: "postgres://cars:secret@127.0.0.1:1/cars" });
+
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /Cannot connect to the database at postgres:\/\/127\.0\.0\.1:1\/cars/);
+    assert.doesNotMatch(result.stderr, /secret/);
+  });
+});
+
+test("a pool logs errors of idle connections instead of crashing the app", () => {
+  const pool = createPool("postgres://cars:cars@127.0.0.1:1/cars");
+
+  assert.equal(pool.listenerCount("error"), 1);
+  return pool.end();
+});
+
+test("a request gives 500 when the database is unreachable", async () => {
+  const pool = createPool("postgres://cars:cars@127.0.0.1:1/cars");
+  const app = createApp({ store: createPgCarsStore(pool) });
+
+  const res = await request(app).get("/api/cars");
+
+  assert.equal(res.status, 500);
+  assert.deepEqual(res.body, { message: "Internal server error" });
+  await pool.end();
+});
+
 describe("postgres", () => {
   let pool;
 
@@ -59,6 +102,56 @@ describe("postgres", () => {
 
   // beforeEach has already emptied the table
   storeContract("postgres", async () => createPgCarsStore(pool));
+
+  describe("checkDatabase", () => {
+    test("resolves for a migrated database", async () => {
+      await checkDatabase(pool, process.env.TEST_DATABASE_URL);
+    });
+
+    test("says to run npm run migrate when the cars table is missing", async () => {
+      // a schema without tables stands in for a database that was never migrated
+      await pool.query("CREATE SCHEMA IF NOT EXISTS not_migrated");
+      const unmigrated = new Pool({
+        connectionString: process.env.TEST_DATABASE_URL,
+        options: "-c search_path=not_migrated",
+      });
+
+      try {
+        await assert.rejects(checkDatabase(unmigrated, process.env.TEST_DATABASE_URL), {
+          message: /The cars table does not exist\. Run npm run migrate\./,
+        });
+      } finally {
+        await unmigrated.end();
+      }
+    });
+  });
+
+  describe("app with the postgres store", () => {
+    test("a created car can be read back and is listed", async () => {
+      const app = createApp({ store: createPgCarsStore(pool) });
+
+      const created = await request(app).post("/api/cars").send({ make: " Ford ", model: "Mustang", year: 2022 });
+      const read = await request(app).get(`/api/cars/${created.body.id}`);
+      const list = await request(app).get("/api/cars");
+
+      assert.equal(created.status, 201);
+      assert.deepEqual(read.body, { id: created.body.id, make: "Ford", model: "Mustang", year: 2022 });
+      assert.deepEqual(list.body, [read.body]);
+    });
+
+    test("PUT and DELETE change the stored car", async () => {
+      const app = createApp({ store: createPgCarsStore(pool) });
+      const { body: car } = await request(app).post("/api/cars").send({ make: "Ford", model: "Mustang", year: 2022 });
+
+      const replaced = await request(app).put(`/api/cars/${car.id}`).send({ make: "Honda", model: "Civic", year: 2021 });
+      const deleted = await request(app).delete(`/api/cars/${car.id}`);
+      const afterDelete = await request(app).get(`/api/cars/${car.id}`);
+
+      assert.deepEqual(replaced.body, { id: car.id, make: "Honda", model: "Civic", year: 2021 });
+      assert.equal(deleted.status, 204);
+      assert.equal(afterDelete.status, 404);
+    });
+  });
 
   describe("cars table", () => {
     const insert = (make, model, year) =>
