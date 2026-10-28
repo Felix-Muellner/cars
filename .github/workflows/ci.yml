@@ -19,7 +19,7 @@ jobs:
         ports:
           - 5432:5432
         options: >-
-          --health-cmd "pg_isready -U cars -d cars_test"
+          --health-cmd "pg_isready -h 127.0.0.1 -U cars -d cars_test"
           --health-interval 2s
           --health-timeout 5s
           --health-retries 15
@@ -36,5 +36,5 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
-      - run: npm run check
       - run: npm run check:migrations
+      - run: npm run check

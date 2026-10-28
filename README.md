@@ -90,7 +90,7 @@ npm start         # run the API
 npm test          # run the tests (the Postgres tests need TEST_DATABASE_URL)
 npm run migrate   # apply new database migrations
 npm run db:seed   # add the two example cars to an empty database
-npm run check     # lint + spec lint + tests (what CI runs)
+npm run check     # lint + spec lint + tests (CI runs this and check:migrations)
 ```
 
 The [development guide](docs/development.md) covers environment variables, migrations, the test layout and troubleshooting.

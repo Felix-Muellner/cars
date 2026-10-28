@@ -63,7 +63,7 @@ start` stops with "The cars table does not exist. Run npm run migrate."
 
 `npm run db:seed` adds Toyota Corolla and Honda Civic, but only if the
 `cars` table is empty, so it never touches your own cars. Ids are never
-reused: if you delete car 1, the Swagger UI example "An existing car (1)"
+reused: if you delete car 1, the Swagger UI example "An existing car" (id 1)
 returns 404 until the database is recreated.
 
 ## Tests
@@ -92,6 +92,7 @@ You need Node.js 24 and a PostgreSQL 18 server. With Docker, for example:
 docker run -d --name cars-postgres -p 5432:5432 \
   -e POSTGRES_USER=cars -e POSTGRES_PASSWORD=cars -e POSTGRES_DB=cars \
   postgres:18
+until docker exec cars-postgres pg_isready -h 127.0.0.1 -U cars; do sleep 1; done
 docker exec cars-postgres createdb -U cars cars_test
 
 cp .env.example .env   # points at localhost:5432
