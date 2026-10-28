@@ -12,6 +12,8 @@ Domain terms and rules: read CONTEXT.md before changing behavior.
 - `npm run lint:api`: generate the OpenAPI spec and lint it with
   Redocly (rules in redocly.yaml)
 - `npm run check`: lint + spec lint + tests
+- `npm run check:migrations`: fail if a migration already on `main`
+  was changed (CI runs it on every PR)
 
 ## Code layout
 
@@ -36,6 +38,11 @@ Domain terms and rules: read CONTEXT.md before changing behavior.
 - Every PR closes an issue. If none exists, create one with
   `gh issue create` first.
 - Open a pull request using `gh pr create` upon completion for human review.
+
+## Migrations
+
+- Never edit, rename or delete a migration in `migrations/` that is on
+  `main`. Change the schema by adding a new migration.
 
 ## Definition of done
 

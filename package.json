@@ -9,7 +9,8 @@
     "migrate": "node --env-file-if-exists=.env scripts/migrate.js",
     "lint": "eslint .",
     "lint:api": "node scripts/build-openapi.js && redocly lint openapi.json",
-    "check": "npm run lint && npm run lint:api && npm test"
+    "check": "npm run lint && npm run lint:api && npm test",
+    "check:migrations": "node scripts/check-migrations.js"
   },
   "repository": {
     "type": "git",
