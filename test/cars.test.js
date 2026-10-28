@@ -150,6 +150,18 @@ describe("error responses", () => {
     assert.equal(res.status, 500);
     assert.deepEqual(res.body, { message: "Internal server error" });
   });
+
+  test("returns 500 with a JSON body when the store rejects", async () => {
+    const store = {
+      async list() {
+        throw new Error("boom");
+      },
+    };
+    const res = await request(createApp({ store })).get("/api/cars");
+
+    assert.equal(res.status, 500);
+    assert.deepEqual(res.body, { message: "Internal server error" });
+  });
 });
 
 describe("DELETE /api/cars/:id", () => {

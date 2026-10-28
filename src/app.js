@@ -179,8 +179,8 @@ function createApp({ store = createCarsStore(seedCars) } = {}) {
    *       500:
    *         $ref: '#/components/responses/InternalError'
    */
-  app.get('/api/cars', (req, res) => {
-    res.status(200).json(store.list());
+  app.get('/api/cars', async (req, res) => {
+    res.status(200).json(await store.list());
   });
 
   /**
@@ -206,13 +206,13 @@ function createApp({ store = createCarsStore(seedCars) } = {}) {
    *       500:
    *         $ref: '#/components/responses/InternalError'
    */
-  app.get('/api/cars/:id', (req, res) => {
+  app.get('/api/cars/:id', async (req, res) => {
       const carId = parseCarId(req.params.id);
       if (carId === undefined) {
           return res.status(400).json({ message: "Invalid car id" });
       }
 
-      const car = store.get(carId);
+      const car = await store.get(carId);
 
       if (!car) {
           return res.status(404).json({ message: "Car not found" });
@@ -255,13 +255,13 @@ function createApp({ store = createCarsStore(seedCars) } = {}) {
    *       500:
    *         $ref: '#/components/responses/InternalError'
    */
-  app.post('/api/cars', (req, res) => {
+  app.post('/api/cars', async (req, res) => {
       const { car, errors } = validateCarInput(req.body);
       if (!car) {
           return res.status(400).json({ message: "Invalid car", errors });
       }
 
-      const newCar = store.create(car);
+      const newCar = await store.create(car);
 
       res.status(201).json(newCar);
   });
@@ -321,13 +321,13 @@ function createApp({ store = createCarsStore(seedCars) } = {}) {
    *       500:
    *         $ref: '#/components/responses/InternalError'
    */
-  app.put('/api/cars/:id', (req, res) => {
+  app.put('/api/cars/:id', async (req, res) => {
       const carId = parseCarId(req.params.id);
       if (carId === undefined) {
           return res.status(400).json({ message: "Invalid car id" });
       }
 
-      if (!store.get(carId)) {
+      if (!(await store.get(carId))) {
           return res.status(404).json({ message: "Car not found" });
       }
 
@@ -336,7 +336,7 @@ function createApp({ store = createCarsStore(seedCars) } = {}) {
           return res.status(400).json({ message: "Invalid car", errors });
       }
 
-      const updatedCar = store.update(carId, car);
+      const updatedCar = await store.update(carId, car);
 
       res.status(200).json(updatedCar);
   });
@@ -360,13 +360,13 @@ function createApp({ store = createCarsStore(seedCars) } = {}) {
    *       500:
    *         $ref: '#/components/responses/InternalError'
    */
-  app.delete('/api/cars/:id', (req, res) => {
+  app.delete('/api/cars/:id', async (req, res) => {
       const carId = parseCarId(req.params.id);
       if (carId === undefined) {
           return res.status(400).json({ message: "Invalid car id" });
       }
 
-      if (!store.remove(carId)) {
+      if (!(await store.remove(carId))) {
           return res.status(404).json({ message: "Car not found" });
       }
 
@@ -377,7 +377,8 @@ function createApp({ store = createCarsStore(seedCars) } = {}) {
       res.status(404).json({ message: "Not found" });
   });
 
-  // Express treats a handler as an error handler only if it takes four arguments
+  // Express treats a handler as an error handler only if it takes four arguments.
+  // Express 5 also sends rejected Promises from the async routes here.
   // eslint-disable-next-line no-unused-vars
   app.use((err, req, res, next) => {
       if (err.type === "entity.parse.failed") {

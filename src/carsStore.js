@@ -10,21 +10,21 @@ function createCarsStore(initialCars = []) {
   let nextId = cars.reduce((max, car) => Math.max(max, car.id), 0) + 1;
 
   return {
-    list() {
+    async list() {
       return cars;
     },
 
-    get(id) {
+    async get(id) {
       return cars.find((c) => c.id === id);
     },
 
-    create({ make, model, year }) {
+    async create({ make, model, year }) {
       const newCar = { id: nextId++, make, model, year };
       cars.push(newCar);
       return newCar;
     },
 
-    update(id, { make, model, year }) {
+    async update(id, { make, model, year }) {
       const car = cars.find((c) => c.id === id);
 
       if (!car) {
@@ -38,7 +38,7 @@ function createCarsStore(initialCars = []) {
       return car;
     },
 
-    remove(id) {
+    async remove(id) {
       const carIndex = cars.findIndex((c) => c.id === id);
 
       if (carIndex === -1) {
