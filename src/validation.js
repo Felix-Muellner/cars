@@ -1,7 +1,13 @@
 const MIN_YEAR = 1886;
+const MAX_TEXT_LENGTH = 100;
 
 function isNonEmptyString(value) {
   return typeof value === "string" && value.trim() !== "";
+}
+
+// counts characters like Postgres varchar does: an emoji is one character, not two UTF-16 units
+function isTooLong(value) {
+  return [...value.trim()].length > MAX_TEXT_LENGTH;
 }
 
 // returns { car, errors }; car holds trimmed values and is only set when errors is empty
@@ -12,9 +18,13 @@ function validateCarInput(body) {
 
   if (!isNonEmptyString(make)) {
     errors.push("make must be a non-empty string");
+  } else if (isTooLong(make)) {
+    errors.push(`make must be at most ${MAX_TEXT_LENGTH} characters`);
   }
   if (!isNonEmptyString(model)) {
     errors.push("model must be a non-empty string");
+  } else if (isTooLong(model)) {
+    errors.push(`model must be at most ${MAX_TEXT_LENGTH} characters`);
   }
   if (!Number.isInteger(year) || year < MIN_YEAR || year > maxYear) {
     errors.push(`year must be an integer from ${MIN_YEAR} to next year`);

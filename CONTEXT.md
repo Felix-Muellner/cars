@@ -13,11 +13,15 @@ OpenAPI schemas and examples, and the README.
   plus `errors: string[]` for validation failures. Every 5xx body is
   `{ "message": "Internal server error" }`, never a stack trace.
 - **Store**: the module that keeps cars (`src/carsStore.js`).
-  Routes talk to it only through list, get, create, update, remove.
+  Routes talk to it only through list, get, create, update, remove,
+  which all return Promises.
 
 ## Rules
 
-- `make` and `model` must be non-empty after trimming spaces.
+- `make` and `model` must be non-empty after trimming spaces and at
+  most 100 characters after trimming. Length counts characters, not
+  UTF-16 units (an emoji is one character). Too long gives 400
+  "Invalid car" with e.g. "make must be at most 100 characters".
 - `year` must be a whole number from 1886 to next year.
 - A car id in the URL must be a positive integer, otherwise 400
   "Invalid car id".
@@ -43,18 +47,13 @@ above when it lands.
   IDENTITY PRIMARY KEY`, `make varchar(100)` and `model varchar(100)`
   (NOT NULL, not blank after trimming), `year integer` (NOT NULL,
   >= 1886). "Year at most next year" is checked in validation.js only.
-- **Length limit (API change)**: `make` and `model` are at most 100
-  characters, counted after trimming and in characters (not UTF-16
-  units). Too long gives 400 "Invalid car" with e.g. "make must be at
-  most 100 characters".
 - **Migrations**: node-pg-migrate, written in SQL, in `migrations/`.
   Run with `npm run migrate`; the app never migrates itself. Never
   edit, rename or delete a migration that is on `main`; add a new one.
   CI enforces this.
 - **Queries**: `pg` with parameters (`$1`, `$2`, ...) only. Never build
   SQL by string concatenation or template strings.
-- **Store**: list, get, create, update, remove become async (return
-  Promises) with the same results. Two implementations: in-memory
+- **Store**: two implementations: in-memory
   (`createCarsStore`, default for `createApp()`) and Postgres
   (`createPgCarsStore`, used by server.js). `list` is ordered by id.
 - **Tests**: shared store contract tests run against both stores.

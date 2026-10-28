@@ -55,12 +55,14 @@ function createApp({ store = createCarsStore(seedCars) } = {}) {
    *         make:
    *           type: string
    *           minLength: 1
-   *           description: Must not be empty after trimming spaces
+   *           maxLength: 100
+   *           description: Must not be empty after trimming spaces, at most 100 characters after trimming
    *           example: Ford
    *         model:
    *           type: string
    *           minLength: 1
-   *           description: Must not be empty after trimming spaces
+   *           maxLength: 100
+   *           description: Must not be empty after trimming spaces, at most 100 characters after trimming
    *           example: Mustang
    *         year:
    *           type: integer
@@ -107,6 +109,12 @@ function createApp({ store = createCarsStore(seedCars) } = {}) {
    *         make: "  "
    *         model: Mustang
    *         year: 2022
+   *     ModelTooLong:
+   *       summary: Model longer than 100 characters (400)
+   *       value:
+   *         make: Ford
+   *         model: Mustang GT Fastback Premium Convertible with the California Special Package and the Performance Pack Level 2
+   *         year: 2022
    *     InvalidCarIdError:
    *       summary: The id is not a positive integer
    *       value:
@@ -132,7 +140,7 @@ function createApp({ store = createCarsStore(seedCars) } = {}) {
    *           example:
    *             message: Invalid car id
    *     InvalidCar:
-   *       description: The body is not valid JSON (message "Invalid JSON"), or make or model is not a non-empty string, or year is not an integer from 1886 to next year (message "Invalid car" with errors)
+   *       description: The body is not valid JSON (message "Invalid JSON"), or make or model is not a non-empty string of at most 100 characters, or year is not an integer from 1886 to next year (message "Invalid car" with errors)
    *       content:
    *         application/json:
    *           schema:
@@ -243,6 +251,8 @@ function createApp({ store = createCarsStore(seedCars) } = {}) {
    *               $ref: '#/components/examples/YearOutOfRange'
    *             blankMake:
    *               $ref: '#/components/examples/BlankMake'
+   *             modelTooLong:
+   *               $ref: '#/components/examples/ModelTooLong'
    *     responses:
    *       201:
    *         description: The created car
@@ -290,6 +300,8 @@ function createApp({ store = createCarsStore(seedCars) } = {}) {
    *               $ref: '#/components/examples/YearOutOfRange'
    *             blankMake:
    *               $ref: '#/components/examples/BlankMake'
+   *             modelTooLong:
+   *               $ref: '#/components/examples/ModelTooLong'
    *     responses:
    *       200:
    *         description: The updated car

@@ -27,6 +27,18 @@ describe("GET /api-docs.json", () => {
   });
 });
 
+describe("request examples", () => {
+  test("the ModelTooLong example is rejected for its length", async () => {
+    const res = await request(createApp()).get("/api-docs.json");
+    const example = res.body.components.examples.ModelTooLong.value;
+
+    const created = await request(createApp()).post("/api/cars").send(example);
+
+    assert.equal(created.status, 400);
+    assert.deepEqual(created.body.errors, ["model must be at most 100 characters"]);
+  });
+});
+
 describe("GET /api-docs", () => {
   test("returns 200 with the Swagger UI page", async () => {
     const res = await request(createApp()).get("/api-docs/");

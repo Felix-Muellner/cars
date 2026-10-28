@@ -6,3 +6,4 @@ openapi.json:
   no-invalid-media-type-examples:
     - '#/components/examples/MissingFields/value'
     - '#/components/examples/YearOutOfRange/value/year'
+    - '#/components/examples/ModelTooLong/value/model'

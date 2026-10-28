@@ -88,6 +88,49 @@ describe("POST /api/cars", () => {
 
     assert.equal(res.status, 400);
   });
+
+  test("returns 201 when make and model are exactly 100 characters", async () => {
+    const res = await request(createApp())
+      .post("/api/cars")
+      .send({ ...validCar, make: "a".repeat(100), model: "b".repeat(100) });
+
+    assert.equal(res.status, 201);
+    assert.equal(res.body.make, "a".repeat(100));
+  });
+
+  test("returns 400 when make or model is 101 characters", async () => {
+    const res = await request(createApp())
+      .post("/api/cars")
+      .send({ ...validCar, make: "a".repeat(101), model: "b".repeat(101) });
+
+    assert.equal(res.status, 400);
+    assert.deepEqual(res.body, {
+      message: "Invalid car",
+      errors: [
+        "make must be at most 100 characters",
+        "model must be at most 100 characters",
+      ],
+    });
+  });
+
+  test("counts the length after trimming spaces", async () => {
+    const res = await request(createApp())
+      .post("/api/cars")
+      .send({ ...validCar, make: `  ${"a".repeat(100)}  ` });
+
+    assert.equal(res.status, 201);
+    assert.equal(res.body.make, "a".repeat(100));
+  });
+
+  test("counts an emoji or accented letter as one character", async () => {
+    const make = "🚗".repeat(50) + "é".repeat(50);
+    const res = await request(createApp())
+      .post("/api/cars")
+      .send({ ...validCar, make });
+
+    assert.equal(res.status, 201);
+    assert.equal(res.body.make, make);
+  });
 });
 
 describe("PUT /api/cars/:id", () => {
@@ -110,6 +153,18 @@ describe("PUT /api/cars/:id", () => {
         "model must be a non-empty string",
         "year must be an integer from 1886 to next year",
       ],
+    });
+  });
+
+  test("returns 400 when model is 101 characters", async () => {
+    const res = await request(createApp())
+      .put("/api/cars/1")
+      .send({ ...validCar, model: "b".repeat(101) });
+
+    assert.equal(res.status, 400);
+    assert.deepEqual(res.body, {
+      message: "Invalid car",
+      errors: ["model must be at most 100 characters"],
     });
   });
 

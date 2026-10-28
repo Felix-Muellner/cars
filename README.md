@@ -64,6 +64,8 @@ Because the environment is ephemeral and fully described by the devcontainer, ev
 | `PUT` | `/api/cars/:id` | Update an existing car | `200 OK` / `400 Bad Request` / `404 Not Found` |
 | `DELETE` | `/api/cars/:id` | Remove a car by ID | `204 No Content` / `400 Bad Request` / `404 Not Found` |
 
+A car is `{ id, make, model, year }`. `make` and `model` must be non-empty and at most 100 characters (after trimming spaces), and `year` must be a whole number from 1886 to next year.
+
 Every error response has a JSON body `{ "message": string }`. Validation failures also include `errors: string[]`. A body that is not valid JSON returns `400` with `"Invalid JSON"`, an unknown route returns `404` with `"Not found"`, and an unexpected server error returns `500` with `"Internal server error"`, without a stack trace.
 
 ## ⚙️ Getting Started
