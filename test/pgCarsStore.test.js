@@ -4,6 +4,8 @@ const { test, describe, before, beforeEach, after } = require("node:test");
 const assert = require("node:assert/strict");
 const { Pool } = require("pg");
 const { migrate } = require("../src/migrate");
+const { createPgCarsStore } = require("../src/pgCarsStore");
+const { storeContract } = require("./storeContract");
 
 // the URL without the password, safe to print
 function describeUrl(databaseUrl) {
@@ -54,6 +56,9 @@ describe("postgres", () => {
   after(async () => {
     await pool?.end();
   });
+
+  // beforeEach has already emptied the table
+  storeContract("postgres", async () => createPgCarsStore(pool));
 
   describe("cars table", () => {
     const insert = (make, model, year) =>
